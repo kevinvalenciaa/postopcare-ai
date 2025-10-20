@@ -32,8 +32,8 @@
 ---
 
 ## Glossary — 5 terms (one sentence each)
-- **Embedding:** [Your definition]
-- **Top-k:** [Your definition]
-- **Chunk size / overlap:** [Your definition]
-- **Reranker:** [Your definition]
-- **Prompt template:** [Your definition]
+- **Term 1 (e.g Embedding):** [Your definition]
+- **Term 2:** [Your definition]
+- **Term 3:** [Your definition]
+- **Term 4:** [Your definition]
+- **Term 5:** [Your definition]
