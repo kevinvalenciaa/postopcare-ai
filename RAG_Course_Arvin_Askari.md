@@ -1,6 +1,10 @@
-Week 1 — RAG Mini-Course Notes (LLMWare 2024)
-Name: Arvin Askari
-Course: https://www.udemy.com/course/learn-rag-with-llmware-2024/
+# Week 1 — RAG Mini-Course Notes (LLMWare 2024)
+
+> **Name:** Arvin Askari  
+> **File name:** `RAG_Course_Arvin_Askari.md`  
+> **Course:** https://www.udemy.com/course/learn-rag-with-llmware-2024/  
+
+---
 
 Pipeline Map — what & why (1–2 bullets per step)
 
