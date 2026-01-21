@@ -52,7 +52,14 @@ def search_pubmed(query: str, max_results: int = 10) -> list[str]:
             }
         }
     """
-    #request parameters
+    # TODO: Implement
+    # 1. Build URL with params: db=pubmed, term=query, retmax=max_results, retmode=json
+    # 2. Add api_key if available
+    # 3. Make GET request
+    # 4. Parse JSON response
+    # 5. Return idlist
+    
+    # Build request parameters
     params = {
         'db': 'pubmed',
         'term': query,
@@ -139,7 +146,96 @@ def fetch_article_details(pmids: list[str]) -> list[dict]:
     # 4. Loop through each PubmedArticle element
     # 5. Extract: PMID, ArticleTitle, AbstractText, Authors, Journal Title, Year
     # 6. Return list of article dicts
-    pass
+    
+    #coma seperated list of pmids
+    pmid_list = ','.join(pmids)
+    
+    # request parameters 
+    params = {
+        'db': 'pubmed',
+        'id': pmid_list,
+        'retmode': 'xml'
+    }
+    
+    #add api key if it's available 
+    if API_KEY:
+        params['api_key'] = API_KEY
+    
+    #make the GET request to efetch the endpoint
+    url = f"{BASE_URL}/efetch.fcgi"
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    
+    #parse through the xml response 
+    root = ET.fromstring(response.text)
+    articles = []
+    
+    # Loop through each PubmedArticle element
+    for article_elem in root.findall('.//PubmedArticle'):
+        medline_citation = article_elem.find('MedlineCitation')
+        if medline_citation is None:
+            continue
+        
+        # Extract the pmid 
+        pmid_elem = medline_citation.find('PMID')
+        pmid = pmid_elem.text if pmid_elem is not None else ""
+        
+        # get article information
+        article = medline_citation.find('Article')
+        if article is None:
+            continue
+        
+        # take the tile 
+        title_elem = article.find('ArticleTitle')
+        title = title_elem.text if title_elem is not None else ""
+        
+        # get the abstract 
+        abstract_text = ""
+        abstract = article.find('Abstract')
+        if abstract is not None:
+            abstract_text_elem = abstract.find('AbstractText')
+            if abstract_text_elem is not None:
+                abstract_text = abstract_text_elem.text if abstract_text_elem.text else ""
+        
+        # get author name
+        authors = []
+        author_list = article.find('AuthorList')
+        if author_list is not None:
+            for author in author_list.findall('Author'):
+                last_name_elem = author.find('LastName')
+                initials_elem = author.find('Initials')
+                if last_name_elem is not None and initials_elem is not None:
+                    authors.append(f"{last_name_elem.text} {initials_elem.text}")
+                elif last_name_elem is not None:
+                    authors.append(last_name_elem.text)
+        
+        # take journla title 
+        journal_title = ""
+        journal = article.find('Journal')
+        if journal is not None:
+            journal_title_elem = journal.find('Title')
+            journal_title = journal_title_elem.text if journal_title_elem is not None else ""
+        
+        # take year 
+        year = ""
+        date_completed = medline_citation.find('DateCompleted')
+        if date_completed is not None:
+            year_elem = date_completed.find('Year')
+            year = year_elem.text if year_elem is not None else ""
+        
+        #article dictionary with all the article key features
+        article_dict = {
+            "pmid": pmid,
+            "title": title,
+            "authors": authors,
+            "abstract": abstract_text,
+            "journal": journal_title,
+            "year": year
+        }
+        
+        articles.append(article_dict)
+    
+    return articles
 
 
 def search_and_save(query: str, output_file: str, max_results: int = 10) -> None:
@@ -197,3 +293,13 @@ if __name__ == "__main__":
     print("Testing search_pubmed()...")
     pmids = search_pubmed("knee replacement post operative care", max_results=5)
     print(f"Found {len(pmids)} PMIDs: {pmids}")
+    
+    # Test fetch_article_details function
+    print("\nTesting fetch_article_details()...")
+    articles = fetch_article_details(pmids)
+    print(f"Retrieved {len(articles)} articles:")
+    for article in articles:
+        print(f"  - PMID: {article['pmid']}")
+        print(f"    Title: {article['title']}")
+        print(f"    Authors: {', '.join(article['authors'][:2])}")
+        print()
