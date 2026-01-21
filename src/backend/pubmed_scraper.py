@@ -269,7 +269,23 @@ def search_and_save(query: str, output_file: str, max_results: int = 10) -> None
     # 2. Call fetch_article_details(pmids)
     # 3. Build result dict with query, count, articles
     # 4. Save to JSON using json.dump()
-    pass
+    
+    # Call search_pubmed to get PMIDs
+    pmids = search_pubmed(query, max_results)
+    
+    # Call fetch_article_details to get full article information
+    articles = fetch_article_details(pmids)
+    
+    # Build result dict
+    result = {
+        "query": query,
+        "count": len(articles),
+        "articles": articles
+    }
+    
+    # Save to JSON file
+    with open(output_file, 'w') as f:
+        json.dump(result, f, indent=2)
 
 
 # Test the module
@@ -279,21 +295,13 @@ if __name__ == "__main__":
     # # Test search
     # pmids = search_pubmed("knee replacement post operative care", max_results=5)
     # print(f"Found PMIDs: {pmids}")
-    # 
-    # # Test fetch
-    # articles = fetch_article_details(pmids)
-    # for article in articles:
-    #     print(f"- {article['title'][:50]}...")
-    # 
-    # # Test full pipeline
-    # search_and_save("knee replacement post operative care", "knee_articles.json", max_results=10)
-    # print("Saved to knee_articles.json")
+
     
     # Test search_pubmed function
     print("Testing search_pubmed()...")
     pmids = search_pubmed("knee replacement post operative care", max_results=5)
     print(f"Found {len(pmids)} PMIDs: {pmids}")
-    
+    print()
     # Test fetch_article_details function
     print("\nTesting fetch_article_details()...")
     articles = fetch_article_details(pmids)
@@ -303,3 +311,21 @@ if __name__ == "__main__":
         print(f"    Title: {article['title']}")
         print(f"    Authors: {', '.join(article['authors'][:2])}")
         print()
+    
+    # Test search_and_save function
+    print("Testing search_and_save()...")
+    output_file = "knee_articles.json"
+    search_and_save("knee replacement post operative care", output_file, max_results=3)
+    print(f"Saved results to {output_file}")
+    print()
+    
+    # Display saved file contents
+    print("testing save and search results...")
+    with open(output_file, 'r') as f:
+        saved_data = json.load(f)
+        print(f"  Query: {saved_data['query']}")
+        print(f"  Count: {saved_data['count']}")
+        print(f"  First article title: {saved_data['articles'][0]['title'][:60]}...")
+    # Test full pipeline
+    search_and_save("knee replacement post operative care", "knee_articles.json", max_results=10)
+    print("Saved to knee_articles.json")
