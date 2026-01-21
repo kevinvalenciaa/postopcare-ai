@@ -1,3 +1,5 @@
+
+
 # pubmed_scraper.py
 """
 PubMed API Scraper for PostopCare
@@ -10,14 +12,19 @@ PubMed API returns XML by default. Key endpoints:
     - esearch: Search and get PMIDs
     - efetch: Get full article details by PMID
 """
-
+# make sure to install python-dotenv and requests to ensure dependencies work properly
 import requests
 import json
 import xml.etree.ElementTree as ET
 from typing import Optional
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 BASE_URL = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils"
-API_KEY = ""  # TODO: Add your NCBI API key here (get one at https://www.ncbi.nlm.nih.gov/account/)
+API_KEY = os.getenv("PUBMED_API_KEY")
 
 
 def search_pubmed(query: str, max_results: int = 10) -> list[str]:
@@ -45,12 +52,31 @@ def search_pubmed(query: str, max_results: int = 10) -> list[str]:
             }
         }
     """
-    # TODO: Implement
-    # 1. Build URL with params: db=pubmed, term=query, retmax=max_results, retmode=json
-    # 2. Add api_key if available
-    # 3. Make GET request
-    # 4. Parse JSON response
-    # 5. Return idlist
+    #request parameters
+    params = {
+        'db': 'pubmed',
+        'term': query,
+        'retmax': max_results,
+        'retmode': 'json'
+    }
+    
+    #adding the api key
+    if API_KEY:
+        params['api_key'] = API_KEY
+    
+    # Make GET request to esearch endpoint
+    url = f"{BASE_URL}/esearch.fcgi"
+    response = requests.get(url, params=params)
+    response.raise_for_status()
+    
+    # Parse JSON response and return idlist
+    data = response.json()
+    return data['esearchresult']['idlist']
+
+
+
+
+
     pass
 
 
@@ -166,4 +192,8 @@ if __name__ == "__main__":
     # # Test full pipeline
     # search_and_save("knee replacement post operative care", "knee_articles.json", max_results=10)
     # print("Saved to knee_articles.json")
-    pass
+    
+    # Test search_pubmed function
+    print("Testing search_pubmed()...")
+    pmids = search_pubmed("knee replacement post operative care", max_results=5)
+    print(f"Found {len(pmids)} PMIDs: {pmids}")
