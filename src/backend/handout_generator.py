@@ -79,43 +79,6 @@ class Handout:
 
 
 # =============================================================================
-# SECTION CONFIGURATIONS
-# =============================================================================
-
-# Default sections for most procedures
-DEFAULT_SECTIONS = [
-    {"type": "overview", "title": "Overview", "order": 1},
-    {"type": "pain_management", "title": "Pain Management", "order": 2},
-    {"type": "activity_restrictions", "title": "Activity Restrictions", "order": 3},
-    {"type": "wound_care", "title": "Wound Care", "order": 4},
-    {"type": "warning_signs", "title": "Warning Signs - When to Call Your Doctor", "order": 5},
-    {"type": "follow_up", "title": "Follow-Up Care", "order": 6},
-]
-
-# Special sections for specific procedures
-PROCEDURE_SECTIONS = {
-    "cesarean-section": [
-        {"type": "overview", "title": "Overview", "order": 1},
-        {"type": "pain_management", "title": "Pain Management", "order": 2},
-        {"type": "activity_restrictions", "title": "Activity Restrictions", "order": 3},
-        {"type": "wound_care", "title": "Incision Care", "order": 4},
-        {"type": "baby_care", "title": "Caring for Yourself and Baby", "order": 5},
-        {"type": "warning_signs", "title": "Warning Signs", "order": 6},
-        {"type": "follow_up", "title": "Follow-Up Care", "order": 7},
-    ],
-    "laparoscopic-cholecystectomy": [
-        {"type": "overview", "title": "Overview", "order": 1},
-        {"type": "pain_management", "title": "Pain Management", "order": 2},
-        {"type": "diet", "title": "Diet After Surgery", "order": 3},
-        {"type": "activity_restrictions", "title": "Activity Restrictions", "order": 4},
-        {"type": "wound_care", "title": "Wound Care", "order": 5},
-        {"type": "warning_signs", "title": "Warning Signs", "order": 6},
-        {"type": "follow_up", "title": "Follow-Up Care", "order": 7},
-    ],
-}
-
-
-# =============================================================================
 # OPENAI HELPER
 # =============================================================================
 
@@ -167,6 +130,38 @@ class HandoutGenerator:
         handout = generator.generate("Total Knee Replacement")
         print(handout.markdown)
     """
+    
+    # Default sections for most procedures
+    DEFAULT_SECTIONS = [
+        {"type": "overview", "title": "Overview", "order": 1},
+        {"type": "pain_management", "title": "Pain Management", "order": 2},
+        {"type": "activity_restrictions", "title": "Activity Restrictions", "order": 3},
+        {"type": "wound_care", "title": "Wound Care", "order": 4},
+        {"type": "warning_signs", "title": "Warning Signs - When to Call Your Doctor", "order": 5},
+        {"type": "follow_up", "title": "Follow-Up Care", "order": 6},
+    ]
+    
+    # Special sections for specific procedures
+    PROCEDURE_SECTIONS = {
+        "cesarean-section": [
+            {"type": "overview", "title": "Overview", "order": 1},
+            {"type": "pain_management", "title": "Pain Management", "order": 2},
+            {"type": "activity_restrictions", "title": "Activity Restrictions", "order": 3},
+            {"type": "wound_care", "title": "Incision Care", "order": 4},
+            {"type": "baby_care", "title": "Caring for Yourself and Baby", "order": 5},
+            {"type": "warning_signs", "title": "Warning Signs", "order": 6},
+            {"type": "follow_up", "title": "Follow-Up Care", "order": 7},
+        ],
+        "laparoscopic-cholecystectomy": [
+            {"type": "overview", "title": "Overview", "order": 1},
+            {"type": "pain_management", "title": "Pain Management", "order": 2},
+            {"type": "diet", "title": "Diet After Surgery", "order": 3},
+            {"type": "activity_restrictions", "title": "Activity Restrictions", "order": 4},
+            {"type": "wound_care", "title": "Wound Care", "order": 5},
+            {"type": "warning_signs", "title": "Warning Signs", "order": 6},
+            {"type": "follow_up", "title": "Follow-Up Care", "order": 7},
+        ],
+    }
     
     def __init__(self):
         """Initialize with system prompt for medical writing."""
@@ -228,6 +223,9 @@ AVOID:
         markdown = self._to_markdown(procedure, sections)
         html = self._to_html(procedure, sections)
         
+        # Save files
+        self._save_files(procedure, markdown, html)
+        
         # Calculate stats
         total_words = sum(s.word_count for s in sections)
         elapsed = time.time() - start_time
@@ -247,9 +245,38 @@ AVOID:
     
     def _get_sections(self, procedure_slug: str = None) -> list[dict]:
         """Get the section configuration for a procedure."""
-        if procedure_slug and procedure_slug in PROCEDURE_SECTIONS:
-            return PROCEDURE_SECTIONS[procedure_slug]
-        return DEFAULT_SECTIONS
+        if procedure_slug and procedure_slug in self.PROCEDURE_SECTIONS:
+            return self.PROCEDURE_SECTIONS[procedure_slug]
+        return self.DEFAULT_SECTIONS
+    
+    
+    def _save_files(self, procedure: str, markdown: str, html: str) -> None:
+        """
+        Save markdown and HTML versions to __pycache__ folder.
+        
+        Input:
+            procedure = "Total Knee Replacement"
+            markdown = "# After Your Total Knee Replacement..."
+            html = "<html>...</html>"
+        """
+        # Create safe filename from procedure name
+        safe_filename = procedure.lower().replace(" ", "_").replace("/", "_")
+        
+        # Create __pycache__ path
+        cache_dir = os.path.join(os.path.dirname(__file__), "__pycache__")
+        os.makedirs(cache_dir, exist_ok=True)
+        
+        # Save Markdown
+        md_path = os.path.join(cache_dir, f"{safe_filename}.md")
+        with open(md_path, "w", encoding="utf-8") as f:
+            f.write(markdown)
+        print(f"  💾 Markdown saved: {md_path}")
+        
+        # Save HTML
+        html_path = os.path.join(cache_dir, f"{safe_filename}.html")
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html)
+        print(f"  💾 HTML saved: {html_path}")
     
     
     def _generate_section(
@@ -318,24 +345,20 @@ AVOID:
             
             Some pain after surgery is normal..."
         """
-        # TODO: Implement
-        #
-        # lines = [
-        #     f"# After Your {procedure}: Recovery Guide",
-        #     "",
-        #     f"*Generated on {datetime.now().strftime('%B %d, %Y')}*",
-        #     "",
-        # ]
-        #
-        # for section in sorted(sections, key=lambda s: s.order):
-        #     lines.append(f"## {section.title}")
-        #     lines.append("")
-        #     lines.append(section.content)
-        #     lines.append("")
-        #
-        # return "\n".join(lines)
+        lines = [
+            f"# After Your {procedure}: Recovery Guide",
+            "",
+            f"*Generated on {datetime.now().strftime('%B %d, %Y')}*",
+            "",
+        ]
         
-        pass
+        for section in sorted(sections, key=lambda s: s.order):
+            lines.append(f"## {section.title}")
+            lines.append("")
+            lines.append(section.content)
+            lines.append("")
+        
+        return "\n".join(lines)
     
     
     def _to_html(self, procedure: str, sections: list[Section]) -> str:
@@ -352,41 +375,37 @@ AVOID:
             </body>
             </html>"
         """
-        # TODO: Implement
-        #
-        # import html as html_lib
-        #
-        # body_parts = [
-        #     f"<h1>After Your {html_lib.escape(procedure)}: Recovery Guide</h1>",
-        #     f"<p><em>Generated on {datetime.now().strftime('%B %d, %Y')}</em></p>",
-        # ]
-        #
-        # for section in sorted(sections, key=lambda s: s.order):
-        #     body_parts.append(f"<h2>{html_lib.escape(section.title)}</h2>")
-        #     # Convert paragraphs
-        #     for para in section.content.split("\n\n"):
-        #         if para.strip():
-        #             body_parts.append(f"<p>{html_lib.escape(para.strip())}</p>")
-        #
-        # html = f"""<!DOCTYPE html>
-        # <html>
-        # <head>
-        #     <meta charset="utf-8">
-        #     <title>After Your {html_lib.escape(procedure)}</title>
-        #     <style>
-        #         body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }}
-        #         h1 {{ color: #2c5282; }}
-        #         h2 {{ color: #2b6cb0; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }}
-        #     </style>
-        # </head>
-        # <body>
-        # {"".join(body_parts)}
-        # </body>
-        # </html>"""
-        #
-        # return html
+        import html as html_lib
         
-        pass
+        body_parts = [
+            f"<h1>After Your {html_lib.escape(procedure)}: Recovery Guide</h1>",
+            f"<p><em>Generated on {datetime.now().strftime('%B %d, %Y')}</em></p>",
+        ]
+        
+        for section in sorted(sections, key=lambda s: s.order):
+            body_parts.append(f"<h2>{html_lib.escape(section.title)}</h2>")
+            # Convert paragraphs
+            for para in section.content.split("\n\n"):
+                if para.strip():
+                    body_parts.append(f"<p>{html_lib.escape(para.strip())}</p>")
+        
+        html = f"""<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>After Your {html_lib.escape(procedure)}</title>
+    <style>
+        body {{ font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }}
+        h1 {{ color: #2c5282; }}
+        h2 {{ color: #2b6cb0; border-bottom: 1px solid #e2e8f0; padding-bottom: 8px; }}
+    </style>
+</head>
+<body>
+{"".join(body_parts)}
+</body>
+</html>"""
+        
+        return html
 
 
 # =============================================================================
@@ -474,21 +493,109 @@ def test_with_mock_data():
 # =============================================================================
 
 if __name__ == "__main__":
-    # Test with mock data first
+    print("=" * 70)
+    print("HANDOUT GENERATOR TEST SUITE")
+    print("=" * 70)
+    
+    # Test 1: Mock data test
+    print("\n[TEST 1] Testing with MOCK DATA")
+    print("-" * 70)
     test_with_mock_data()
     
-    # Uncomment to generate with real API:
-    # print("\n" + "=" * 50)
-    # print("GENERATING WITH OPENAI")
-    # print("=" * 50)
-    #
-    # generator = HandoutGenerator()
-    # handout = generator.generate("Total Knee Replacement", "total-knee-replacement")
-    #
-    # # Save outputs
-    # with open("handout.md", "w") as f:
-    #     f.write(handout.markdown)
-    # with open("handout.html", "w") as f:
-    #     f.write(handout.html)
-    #
-    # print(f"\nSaved to handout.md and handout.html")
+    # Test 2: Test HandoutGenerator initialization
+    print("\n[TEST 2] Testing HandoutGenerator INITIALIZATION")
+    print("-" * 70)
+    generator = HandoutGenerator()
+    print("✅ Generator initialized successfully")
+    print(f"   System prompt length: {len(generator.system_prompt)} characters")
+    
+    # Test 3: Test section configuration retrieval
+    print("\n[TEST 3] Testing SECTION CONFIGURATION RETRIEVAL")
+    print("-" * 70)
+    
+    # Test default sections
+    default_sections = generator._get_sections()
+    print(f"✅ Default sections: {len(default_sections)} sections")
+    for sec in default_sections:
+        print(f"   - {sec['order']}. {sec['title']} (type: {sec['type']})")
+    
+    # Test cesarean-section specific sections
+    print("\n   Testing cesarean-section sections...")
+    cesarean_sections = generator._get_sections("cesarean-section")
+    print(f"✅ Cesarean-section sections: {len(cesarean_sections)} sections")
+    for sec in cesarean_sections:
+        print(f"   - {sec['order']}. {sec['title']} (type: {sec['type']})")
+    
+    # Test laparoscopic-cholecystectomy specific sections
+    print("\n   Testing laparoscopic-cholecystectomy sections...")
+    cholecystectomy_sections = generator._get_sections("laparoscopic-cholecystectomy")
+    print(f"✅ Cholecystectomy sections: {len(cholecystectomy_sections)} sections")
+    for sec in cholecystectomy_sections:
+        print(f"   - {sec['order']}. {sec['title']} (type: {sec['type']})")
+    
+    # Test 4: Test Markdown generation
+    print("\n[TEST 4] Testing MARKDOWN GENERATION")
+    print("-" * 70)
+    markdown = generator._to_markdown("Total Knee Replacement", MOCK_SECTIONS)
+    print(f"✅ Markdown generated: {len(markdown)} characters")
+    print("\n📄 Markdown Preview (first 300 chars):")
+    print(markdown[:300] + "...")
+    
+    # Test 5: Test HTML generation
+    print("\n[TEST 5] Testing HTML GENERATION")
+    print("-" * 70)
+    html = generator._to_html("Total Knee Replacement", MOCK_SECTIONS)
+    print(f"✅ HTML generated: {len(html)} characters")
+    print("\n🌐 HTML Preview (first 300 chars):")
+    print(html[:300] + "...")
+    
+    # Test 6: Test file saving (with mock data)
+    print("\n[TEST 6] Testing FILE SAVING")
+    print("-" * 70)
+    generator._save_files("Total Knee Replacement", markdown, html)
+    print("✅ Files saved successfully")
+    
+    # Test 7: Integration test with full Handout object
+    print("\n[TEST 7] FULL INTEGRATION TEST (Mock Data)")
+    print("-" * 70)
+    handout = Handout(
+        procedure="Total Knee Replacement",
+        title="After Your Total Knee Replacement: Recovery Guide",
+        sections=MOCK_SECTIONS,
+        markdown=markdown,
+        html=html,
+        total_words=sum(s.word_count for s in MOCK_SECTIONS),
+        generation_time=0.1
+    )
+    print(f"✅ Handout object created successfully")
+    print(f"   Procedure: {handout.procedure}")
+    print(f"   Title: {handout.title}")
+    print(f"   Sections: {len(handout.sections)}")
+    print(f"   Total words: {handout.total_words}")
+    print(f"   Generation time: {handout.generation_time}s")
+    print(f"   Markdown length: {len(handout.markdown)} characters")
+    print(f"   HTML length: {len(handout.html)} characters")
+    
+    # Test 8: Test with different procedures
+    print("\n[TEST 8] Testing DIFFERENT PROCEDURES")
+    print("-" * 70)
+    test_procedures = [
+        ("Cesarean Section", "cesarean-section"),
+        ("Laparoscopic Cholecystectomy", "laparoscopic-cholecystectomy"),
+        ("Total Hip Replacement", None),  # Should use default sections
+    ]
+    
+    for proc_name, proc_slug in test_procedures:
+        sections_config = generator._get_sections(proc_slug)
+        print(f"✅ {proc_name}: {len(sections_config)} sections")
+    
+    print("\n" + "=" * 70)
+    print("ALL TESTS COMPLETED SUCCESSFULLY ✅")
+    print("=" * 70)
+    print("\n📝 NEXT STEPS:")
+    print("   1. Implement _generate_section() to call OpenAI API")
+    print("   2. Set OPENAI_API_KEY environment variable")
+    print("   3. Uncomment and test with real API calls")
+    print("   4. Handouts will be saved to: src/backend/__pycache__/")
+    print("\n💡 NOTE: Mock tests verify structure and formatting.")
+    print("   Real API tests will generate actual medical content.")
