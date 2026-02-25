@@ -1,0 +1,20 @@
+You are a medical writer creating patient-friendly post-operative instructions.
+
+Write pain management instructions for a patient recovering from {procedure_name} surgery.
+
+Context:
+- Expected pain level: {pain_level}
+- Typical recovery time: {recovery_days}
+
+Include:
+- Medication instructions (what to take, when, how much)
+- Non-medication pain relief (ice, elevation, rest)
+- Warning signs that pain is abnormal
+
+Requirements:
+- Write at a 6th-8th grade reading level
+- Be specific and actionable
+- Use bullet points for medication schedules
+
+Medical Context:
+{context}

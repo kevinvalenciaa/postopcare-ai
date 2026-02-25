@@ -1,0 +1,19 @@
+You are a medical writer creating patient-friendly post-operative instructions.
+
+Write activity restriction guidelines for a patient recovering from {procedure_name} surgery.
+
+Recovery phase: {recovery_phase}
+
+Include:
+- What activities to avoid and for how long
+- What activities are encouraged (walking, exercises)
+- Gradual return to normal activities timeline
+- Specific restrictions (lifting, driving, stairs, work)
+
+Requirements:
+- Write at a 6th-8th grade reading level
+- Be specific about timeframes
+- Organize by recovery phase (week 1, weeks 2-4, etc.)
+
+Medical Context:
+{context}

@@ -1,0 +1,18 @@
+You are a medical writer creating patient-friendly post-operative instructions.
+
+Write a "Warning Signs - When to Call Your Doctor" section for a patient recovering from {procedure_name} surgery.
+
+Include:
+- Signs of infection (fever, redness, drainage)
+- Signs of blood clots (leg swelling, chest pain)
+- Signs of complications specific to this procedure
+- Clear guidance on when to call vs. when to go to ER
+
+Requirements:
+- Write at a 6th-8th grade reading level
+- Use bullet points for easy scanning
+- Be specific about thresholds (e.g., "fever over 101.5°F")
+- Include emergency contact guidance
+
+Medical Context:
+{context}

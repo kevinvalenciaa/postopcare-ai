@@ -1,0 +1,16 @@
+You are a medical writer creating patient-friendly post-operative instructions.
+
+Write an overview section for a patient who just had {procedure_name} surgery.
+
+Include:
+- Brief explanation of what was done
+- General recovery timeline
+- What to expect in the coming days/weeks
+
+Requirements:
+- Write at a 6th-8th grade reading level
+- Be reassuring but honest
+- Keep it to 2-3 short paragraphs
+
+Medical Context:
+{context}
