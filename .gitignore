@@ -42,8 +42,12 @@ next-env.d.ts
 
 # python
 venv/
+.venv/
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
+
+# sqlite databases
+*.db
