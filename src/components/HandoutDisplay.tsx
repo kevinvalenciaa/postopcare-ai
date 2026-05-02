@@ -1,10 +1,18 @@
 'use client';
 
 import { useRef } from 'react';
-import { FileText, Calendar, Printer, Copy, Check } from 'lucide-react';
+import { FileText, Calendar, Printer, Copy, Check, Share2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import { SectionCard } from './SectionCard';
 import { CitationsList } from './CitationsList';
 import { QualityMetrics } from './QualityMetrics';
@@ -17,7 +25,22 @@ interface HandoutDisplayProps {
 
 export function HandoutDisplay({ handout }: HandoutDisplayProps) {
   const [copied, setCopied] = useState(false);
+  const [linkCopied, setLinkCopied] = useState(false);
   const citationsRef = useRef<HTMLDivElement>(null);
+
+  const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+  const qrSrc = handout.qrUrl ? `${apiBase}${handout.qrUrl}` : null;
+
+  const handleCopyLink = async () => {
+    if (!handout.publicUrl) return;
+    try {
+      await navigator.clipboard.writeText(handout.publicUrl);
+      setLinkCopied(true);
+      setTimeout(() => setLinkCopied(false), 2000);
+    } catch (err) {
+      console.error('Failed to copy link:', err);
+    }
+  };
 
   const handleCitationClick = (citationId: number) => {
     citationsRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -79,7 +102,50 @@ export function HandoutDisplay({ handout }: HandoutDisplayProps) {
                 </div>
               </div>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2">
+              {handout.slug && handout.publicUrl && (
+                <Dialog>
+                  <DialogTrigger asChild>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="bg-white/10 text-white hover:bg-white/20"
+                    >
+                      <Share2 className="mr-2 h-4 w-4" />
+                      Share
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                      <DialogTitle>Share this handout</DialogTitle>
+                      <DialogDescription>
+                        Scan the QR code or copy the link to share with a patient.
+                      </DialogDescription>
+                    </DialogHeader>
+                    <div className="flex flex-col items-center gap-4">
+                      {qrSrc && (
+                        <img
+                          src={qrSrc}
+                          alt="QR code for this handout"
+                          className="h-56 w-56 rounded-lg border bg-white p-2"
+                        />
+                      )}
+                      <div className="flex w-full items-center gap-2 rounded-md border bg-gray-50 p-2">
+                        <code className="flex-1 truncate text-xs text-gray-700">
+                          {handout.publicUrl}
+                        </code>
+                        <Button size="sm" variant="outline" onClick={handleCopyLink}>
+                          {linkCopied ? (
+                            <Check className="h-4 w-4" />
+                          ) : (
+                            <Copy className="h-4 w-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </div>
+                  </DialogContent>
+                </Dialog>
+              )}
               <Button
                 variant="secondary"
                 size="sm"

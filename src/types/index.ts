@@ -59,6 +59,9 @@ export interface Handout {
   sections: HandoutSection[];
   citations: Citation[];
   qualityMetrics: QualityMetrics;
+  slug?: string;
+  publicUrl?: string;
+  qrUrl?: string;
 }
 
 // Generation progress step
