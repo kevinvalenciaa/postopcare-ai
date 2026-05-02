@@ -31,36 +31,60 @@ export default function Home() {
     setHandout(null);
     setError(null);
 
-    // Check if we have a mock handout for this procedure
-    if (!hasHandoutForProcedure(selectedProcedure)) {
-      const procedure = getProcedureById(selectedProcedure);
-      setError(
-        `Demo handout not available for "${procedure?.name || selectedProcedure}". Try Total Knee Replacement, Cesarean Section, or Laparoscopic Cholecystectomy.`
-      );
-      setIsGenerating(false);
-      return;
-    }
+    const apiBase = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000';
+    let cancelled = false;
 
-    // Simulate generation progress
-    for (let i = 0; i < GENERATION_STEPS.length; i++) {
-      setCurrentStep(i);
-      await delay(500 + Math.random() * 300); // 500-800ms per step
-    }
+    // Walk the progress indicator while the API call is in flight.
+    const stepTicker = (async () => {
+      for (let i = 0; i < GENERATION_STEPS.length - 1; i++) {
+        if (cancelled) return;
+        setCurrentStep(i);
+        await delay(1500 + Math.random() * 1500);
+      }
+    })();
 
-    // Small delay before showing complete
-    await delay(200);
-
-    // Get the mock handout
-    const mockHandout = getHandoutByProcedureId(selectedProcedure);
-    if (mockHandout) {
-      // Update the generatedAt timestamp to now
-      setHandout({
-        ...mockHandout,
-        generatedAt: new Date().toISOString(),
+    try {
+      const response = await fetch(`${apiBase}/api/generate-handout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          procedure_id: selectedProcedure,
+          section: 'overview',
+          top_k: 5,
+        }),
       });
-    }
+      cancelled = true;
+      await stepTicker;
+      setCurrentStep(GENERATION_STEPS.length - 1);
 
-    setIsGenerating(false);
+      if (!response.ok) {
+        throw new Error(`API error ${response.status}: ${await response.text()}`);
+      }
+
+      const data: Handout = await response.json();
+      await delay(200);
+      setHandout(data);
+    } catch (e) {
+      cancelled = true;
+      await stepTicker;
+      const procedure = getProcedureById(selectedProcedure);
+      const message = e instanceof Error ? e.message : String(e);
+
+      // Graceful fallback to mock data when backend isn't reachable.
+      if (hasHandoutForProcedure(selectedProcedure)) {
+        const mockHandout = getHandoutByProcedureId(selectedProcedure);
+        if (mockHandout) {
+          setHandout({ ...mockHandout, generatedAt: new Date().toISOString() });
+          setError(`Backend unavailable — showing demo content. (${message})`);
+        }
+      } else {
+        setError(
+          `Could not generate handout for "${procedure?.name || selectedProcedure}". ${message}`
+        );
+      }
+    } finally {
+      setIsGenerating(false);
+    }
   }, [selectedProcedure]);
 
   const canGenerate = selectedProcedure !== null && !isGenerating;
