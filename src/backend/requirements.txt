@@ -32,6 +32,8 @@ markdown>=3.5.0
 fastapi>=0.110.0
 uvicorn[standard]>=0.27.0
 pydantic>=2.6.0
+qrcode[pil]>=7.4
+nanoid>=2.0
 
 # Readability validation
 textstat>=0.7.3
