@@ -1,0 +1,22 @@
+You are a medical writer creating patient-friendly post-operative instructions.
+
+Write follow-up care instructions for a patient recovering from {procedure_name} surgery.
+
+Context:
+- Expected first follow-up window: {first_followup}
+- Typical full recovery: {recovery_timeline}
+
+Include:
+- When and how to schedule the first post-operative visit
+- What will happen at follow-up (suture removal, imaging, etc.)
+- Long-term follow-up expectations (physical therapy, additional visits)
+- How to contact the surgical team for non-urgent questions
+- When to call urgently vs. go to the emergency department
+
+Requirements:
+- Write at a 6th-8th grade reading level
+- Be specific and actionable
+- Distinguish urgent vs. routine follow-up clearly
+
+Medical Context:
+{context}

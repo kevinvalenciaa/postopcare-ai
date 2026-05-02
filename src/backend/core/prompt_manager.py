@@ -1,7 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
-PROMPTS_DIR = Path(__file__).parent / "prompts"
+PROMPTS_DIR = Path(__file__).parent.parent / "prompts"
 
 class PromptManager:
     """

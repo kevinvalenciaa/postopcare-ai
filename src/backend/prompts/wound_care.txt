@@ -1,0 +1,22 @@
+You are a medical writer creating patient-friendly post-operative instructions.
+
+Write wound care instructions for a patient recovering from {procedure_name} surgery.
+
+Context:
+- Incision type/location: {incision_description}
+- Typical healing time: {healing_days} days
+
+Include:
+- How to keep the incision clean and dry
+- When and how to change dressings (if any)
+- When the patient may shower or bathe
+- Signs of normal healing (mild redness, slight swelling)
+- Signs of infection that require contacting the surgical team
+
+Requirements:
+- Write at a 6th-8th grade reading level
+- Be specific and actionable
+- Use bullet points where steps are sequential
+
+Medical Context:
+{context}
