@@ -13,6 +13,7 @@ from typing import Optional
 from dotenv import load_dotenv
 from sqlalchemy import (
     JSON,
+    Boolean,
     Column,
     DateTime,
     Float,
@@ -77,9 +78,11 @@ class Handout(Base):
     __tablename__ = "handouts"
     id: Mapped[int] = mapped_column(primary_key=True)
     procedure_id: Mapped[int] = mapped_column(ForeignKey("procedures.id"), index=True)
+    slug: Mapped[str] = mapped_column(String(16), unique=True, index=True)
     generated_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
     model_version: Mapped[Optional[str]] = mapped_column(String(80))
     status: Mapped[str] = mapped_column(String(20), default="draft")  # draft | reviewed | published
+    published: Mapped[bool] = mapped_column(Boolean, default=True)
     procedure: Mapped["Procedure"] = relationship(back_populates="handouts")
     sections: Mapped[list["HandoutSection"]] = relationship(
         back_populates="handout", cascade="all, delete-orphan"
