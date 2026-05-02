@@ -83,38 +83,18 @@ class Handout:
 # =============================================================================
 
 def call_openai(prompt: str, system_prompt: str = None) -> str:
-    """
-    Call OpenAI API to generate text.
-    
-    Input:
-        prompt = "Write pain management instructions..."
-        system_prompt = "You are a medical writer..."
-    
-    Output:
-        "Pain Management\n\nSome pain after surgery is normal..."
-    """
-    if not OPENAI_AVAILABLE:
-        return "[OpenAI not available - install with: pip install openai]"
-    
-    api_key = os.getenv("OPENAI_API_KEY")
-    if not api_key:
-        return "[OPENAI_API_KEY not set in environment]"
-    
-    client = OpenAI(api_key=api_key)
-    
-    messages = []
-    if system_prompt:
-        messages.append({"role": "system", "content": system_prompt})
-    messages.append({"role": "user", "content": prompt})
-    
-    response = client.chat.completions.create(
-        model="gpt-4o-mini",
-        messages=messages,
-        max_tokens=500,
-        temperature=0.7
-    )
-    
-    return response.choices[0].message.content
+    """Delegates to core.llm_client (POC-002) so model/key handling is centralized."""
+    from core.llm_client import generate_text
+    try:
+        return generate_text(
+            prompt=prompt,
+            system=system_prompt,
+            model="gpt-4o-mini",
+            temperature=0.7,
+            max_tokens=500,
+        )
+    except RuntimeError as e:
+        return f"[{e}]"
 
 
 # =============================================================================
