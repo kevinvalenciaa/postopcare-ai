@@ -10,7 +10,7 @@ The goal is to close a real gap in care: the discharge paperwork patients receiv
 
 - **Retrieval-augmented generation** over a curated corpus of PubMed abstracts and society guidelines, with BM25 and dense-vector hybrid search.
 - **Citation-first writing.** Inline `[^N]` markers map to a numbered source list. The pipeline never invents references.
-- **Readability gating.** Every section is scored with Flesch-Kincaid before publishing; anything above 9th grade is flagged.
+- **Readability gating.** Every section is scored with Flesch-Kincaid (ease of understanding) before publishing; anything above 9th grade is flagged.
 - **Patient-ready delivery.** Each handout gets a stable slug, a public `/h/{slug}` page, a print stylesheet, and a server-rendered QR code.
 - **Ten procedures out of the box** spanning Orthopedic, General Surgery, OB/GYN, and Emergency Medicine, with prompt templates for the six sections clinicians actually need (Overview, Pain Management, Activity Restrictions, Wound Care, Warning Signs, and Follow-Up Care).
 
