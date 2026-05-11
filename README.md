@@ -1,6 +1,6 @@
 # PostOpCare AI
 
-> Evidence-based, patient-friendly post-operative recovery handouts, generated in seconds and grounded in real medical literature
+> Evidence-based, patient-friendly post-operative recovery handouts, generated in seconds and grounded in real medical literature.
 
 PostOpCare AI helps clinicians produce trustworthy after-surgery instructions for their patients. A clinician picks a procedure, the system retrieves relevant evidence from PubMed and clinical guidelines, and a large language model writes a six-section recovery guide at a 6th to 8th grade reading level. Every claim is backed by an inline citation, and every handout gets a shareable public link plus a printable QR code that the front desk can hand to the patient on the way out.
 
